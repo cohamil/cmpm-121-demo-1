@@ -64,7 +64,7 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-#counter-display{
+#counter-display {
   text-align: center;
   margin-bottom: 20px;
   font-size: 24px;
