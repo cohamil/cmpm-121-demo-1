@@ -19,23 +19,36 @@ const button = document.createElement("button");
 button.textContent = "💎 Click for Gems! 💎";
 app.append(button);
 button.addEventListener("click", () => {
-    counter += buttonClickAmount;
-    UpdateCounterDisplay(counterDisplay, counter);
+  counter += buttonClickAmount;
+  UpdateCounterDisplay(counterDisplay, counter);
 });
 
 // Automatic clicking
-const autoClickDelayInSecs = 1;
+const autoClickDelayInMS = 1000;
 const autoClickAmount = 1;
-setInterval(() => {
-    counter += autoClickAmount;
+let lastTime = performance.now();
+requestAnimationFrame(ContinuousGrowth);
+
+function ContinuousGrowth() {
+    const deltaTime = performance.now() - lastTime;
+    lastTime = performance.now();
+    
+    // Compute fractional increment per millisecond
+    const increment = (autoClickAmount * deltaTime) / autoClickDelayInMS;
+    counter += increment;
     UpdateCounterDisplay(counterDisplay, counter);
-}, autoClickDelayInSecs * 1000);
+    requestAnimationFrame(ContinuousGrowth);
+}
 
 // Update the counter display
-function UpdateCounterDisplay(counterDisplay: HTMLElement | null, counter: number) {
-    if (counterDisplay) {
-        counterDisplay.textContent = `Gems: ${counter}`;
-    } else {
-        console.error("Counter display not found!");
-    }
+function UpdateCounterDisplay(
+  counterDisplay: HTMLElement | null,
+  counter: number,
+) {
+  if (counterDisplay) {
+    counterDisplay.textContent = `Gems: ${counter.toFixed(0)}`;
+  } else {
+    console.error("Counter display not found!");
+  }
 }
+
