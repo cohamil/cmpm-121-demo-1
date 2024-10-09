@@ -23,19 +23,51 @@ button.addEventListener("click", () => {
   UpdateCounterDisplay(counterDisplay, counter);
 });
 
+// Add upgrade button
+const upgradePrice = 10;
+const upgradeButton = document.createElement("button");
+upgradeButton.textContent = "Upgrade - 10 Gems"
+app.append(upgradeButton);
+upgradeButton.disabled = true;
+upgradeButton.addEventListener("click", () => {
+    counter -= upgradePrice;
+    growthRate += 1;
+    if (counter < upgradePrice) {
+        upgradeButton.disabled = true;
+    }
+})
+
 // Automatic clicking
 const autoClickDelayInMS = 1000;
 const autoClickAmount = 1;
+let growthRate = 0;
 let lastTime = performance.now();
-requestAnimationFrame(ContinuousGrowth);
+
+
+requestAnimationFrame(Update);
+
+// Update loop
+function Update() {
+    // Unlock upgrade if affordable
+    if (counter >= upgradePrice) {
+        upgradeButton.disabled = false;
+    }
+
+    // Check for if the player has purchased an upgrade
+    if (growthRate > 0) {
+        lastTime = performance.now();
+        requestAnimationFrame(ContinuousGrowth);
+    }
+    requestAnimationFrame(Update);
+}
 
 function ContinuousGrowth() {
     const deltaTime = performance.now() - lastTime;
     lastTime = performance.now();
-    
+
     // Compute fractional increment per millisecond
     const increment = (autoClickAmount * deltaTime) / autoClickDelayInMS;
-    counter += increment;
+    counter += increment * growthRate;
     UpdateCounterDisplay(counterDisplay, counter);
     requestAnimationFrame(ContinuousGrowth);
 }
@@ -51,4 +83,3 @@ function UpdateCounterDisplay(
     console.error("Counter display not found!");
   }
 }
-
