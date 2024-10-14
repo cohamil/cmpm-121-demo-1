@@ -33,6 +33,7 @@ class Upgrade {
   private rate: number;
   private button: HTMLButtonElement;
   private numPurchased = 0;
+  private priceMultiplier = 1.15;
 
   public constructor(name: string, price: number, rate: number) {
     this.name = name;
@@ -43,13 +44,15 @@ class Upgrade {
 
   private initUpgradeButton() {
     const button = document.createElement("button");
-    button.textContent = this.name;
+    button.textContent = this.name + " - " + Math.ceil(this.price) + " Gems";
     app.append(button);
     button.disabled = true;
     button.addEventListener("click", () => {
       counter -= this.price;
       growthRate += this.rate;
       this.numPurchased += 1;
+      this.price *= this.priceMultiplier;
+      button.textContent = this.name + " - " + Math.ceil(this.price) + " Gems";
       UpdateUpgradeVisibility();
       UpdateStatusDisplay(growthDisplay, purchaseDisplay);
     });
@@ -114,7 +117,7 @@ function ContinuousGrowth() {
   // Compute fractional increment per millisecond
   const increment = (autoClickAmount * deltaTime) / autoClickDelayInMS;
   counter += increment * growthRate;
-  
+
   UpdateCounterDisplay(counterDisplay);
   requestAnimationFrame(ContinuousGrowth);
 }
@@ -124,8 +127,7 @@ function UpdateUpgradeVisibility() {
   for (const upgrade of upgradeList) {
     if (counter < upgrade.getPrice()) {
       upgrade.setVisibility(false);
-    }
-    else {
+    } else {
       upgrade.setVisibility(true);
     }
   }
