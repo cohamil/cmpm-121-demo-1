@@ -2,7 +2,7 @@ import "./style.css";
 
 const app: HTMLDivElement = document.querySelector("#app")!;
 
-const gameName = "My sweet game";
+const gameName = "Gem Mining Simulator";
 document.title = gameName;
 
 const header = document.createElement("h1");
@@ -20,7 +20,7 @@ const purchaseDisplay = document.getElementById("purchase-display");
 // Add incremental button
 const buttonClickAmount = 1;
 const button = document.createElement("button");
-button.textContent = "💎 Click for Gems! 💎";
+button.textContent = "💎 Mine for Gems! 💎";
 app.append(button);
 button.addEventListener("click", () => {
   counter += buttonClickAmount;
@@ -78,9 +78,9 @@ class Upgrade {
 
 // Initialize upgrade list and add create upgrades
 const upgradeList: Upgrade[] = [];
-const upA = new Upgrade("A", 10, 0.1);
-const upB = new Upgrade("B", 100, 2);
-const upC = new Upgrade("C", 1000, 50);
+const upA = new Upgrade("Hire Worker", 10, 0.1);
+const upB = new Upgrade("Buy Extraction Laser", 100, 2);
+const upC = new Upgrade("Install Mining Machine", 1000, 50);
 upgradeList.push(upA);
 upgradeList.push(upB);
 upgradeList.push(upC);
@@ -94,6 +94,7 @@ let lastTime = performance.now();
 // Flag for auto-clicker running
 let autoClickerRunning = false;
 
+UpdateStatusDisplay(growthDisplay, purchaseDisplay);
 requestAnimationFrame(Update);
 
 // Update loop
@@ -133,7 +134,7 @@ function UpdateUpgradeVisibility() {
   }
 }
 
-// Update all displays
+// Update status displays
 function UpdateStatusDisplay(
   growthDisplay: HTMLElement | null,
   purchaseDisplay: HTMLElement | null,
