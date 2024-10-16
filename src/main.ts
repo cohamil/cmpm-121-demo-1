@@ -31,14 +31,16 @@ class Upgrade {
   private name: string;
   private price: number;
   private rate: number;
+  private description: string;
   private button: HTMLButtonElement;
   private numPurchased = 0;
   private priceMultiplier = 1.15;
 
-  public constructor(name: string, price: number, rate: number) {
+  public constructor(name: string, price: number, rate: number, description: string) {
     this.name = name;
     this.price = price;
     this.rate = rate;
+    this.description = description;
     this.button = this.initUpgradeButton();
   }
 
@@ -67,6 +69,10 @@ class Upgrade {
     return this.name;
   }
 
+  public getDescription() {
+    return this.description;
+  }
+
   public getNumPurchased() {
     return this.numPurchased;
   }
@@ -78,12 +84,26 @@ class Upgrade {
 
 // Initialize upgrade list and add create upgrades
 const upgradeList: Upgrade[] = [];
-const upA = new Upgrade("Hire Worker", 10, 0.1);
-const upB = new Upgrade("Buy Extraction Laser", 100, 2);
-const upC = new Upgrade("Install Mining Machine", 1000, 50);
+const upA = new Upgrade("Hire Worker", 10, 0.1,
+  "Hire a worker to mine for you."
+);
+const upB = new Upgrade("Buy Extraction Laser", 100, 2,
+  "Purchase a laser to extract gems from the earth."
+);
+const upC = new Upgrade("Install Mining Machine", 1000, 50,
+  "Install a machine to automatically mine gems."
+);
+const upD = new Upgrade("Discover Magic Gem Finding Wand", 10000, 250,
+  "Find a magic wand that can locate gems from afar."
+);
+const upE = new Upgrade("Build Portal to Gem Dimension", 100000, 1250,
+  "Create a portal to a dimension full of gems."
+);
 upgradeList.push(upA);
 upgradeList.push(upB);
 upgradeList.push(upC);
+upgradeList.push(upD);
+upgradeList.push(upE);
 
 // Automatic clicking variables
 const autoClickDelayInMS = 1000;
@@ -166,7 +186,7 @@ function UpdatePurchaseDisplay(purchaseDisplay: HTMLElement | null) {
   if (purchaseDisplay) {
     let text = "Purchases: <br>";
     for (const upgrade of upgradeList) {
-      text += upgrade.getName() + " - " + upgrade.getNumPurchased() + "<br>";
+      text += upgrade.getName() + " - " + upgrade.getNumPurchased() + "<br>&emsp;&emsp;<em>" + upgrade.getDescription() + "</em><br>";
     }
     purchaseDisplay.innerHTML = text;
   } else {
