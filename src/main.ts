@@ -22,7 +22,7 @@ class GameState {
   }
 
   public set counter(value: number) {
-    this._counter = value; 
+    this._counter = value;
   }
 
   public get growthRate(): number {
@@ -30,7 +30,7 @@ class GameState {
   }
 
   public set growthRate(value: number) {
-    this._growthRate = value; 
+    this._growthRate = value;
   }
 
   public get autoClickerRunning(): boolean {
@@ -38,7 +38,7 @@ class GameState {
   }
 
   public set autoClickerRunning(value: boolean) {
-    this._autoClickerRunning = value; 
+    this._autoClickerRunning = value;
   }
 }
 
@@ -55,11 +55,17 @@ const purchaseDisplay = document.getElementById("purchase-display");
 const buttonClickAmount = 1;
 const button = document.createElement("button");
 button.textContent = "💎 Mine for Gems! 💎";
+button.style.fontSize = "35px";
+button.style.width = "450px";
+button.style.boxShadow = "5px 5px 5px blue";
 app.append(button);
 button.addEventListener("click", () => {
   gameState.counter += buttonClickAmount;
   UpdateCounterDisplay(counterDisplay);
 });
+
+app.append(document.createElement("br"));
+app.append(document.createElement("br"));
 
 class Upgrade {
   private name: string;
