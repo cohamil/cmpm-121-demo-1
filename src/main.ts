@@ -9,8 +9,42 @@ const header = document.createElement("h1");
 header.innerHTML = gameName;
 app.append(header);
 
-// Counter variables
-let counter: number = 0;
+class GameState {
+  // Counter for the number of gems
+  private _counter: number = 0;
+  // Growth rate for the number of gems per second
+  private _growthRate: number = 0;
+  // Boolean for if the auto-clicker
+  private _autoClickerRunning: boolean = false;
+
+  public get counter(): number {
+    return this._counter;
+  }
+
+  public set counter(value: number) {
+    this._counter = value; 
+  }
+
+  public get growthRate(): number {
+    return this._growthRate;
+  }
+
+  public set growthRate(value: number) {
+    this._growthRate = value; 
+  }
+
+  public get autoClickerRunning(): boolean {
+    return this._autoClickerRunning;
+  }
+
+  public set autoClickerRunning(value: boolean) {
+    this._autoClickerRunning = value; 
+  }
+}
+
+const gameState = new GameState();
+
+// Counter variable
 const counterDisplay = document.getElementById("counter-display");
 
 // Additional displays
@@ -23,7 +57,7 @@ const button = document.createElement("button");
 button.textContent = "💎 Mine for Gems! 💎";
 app.append(button);
 button.addEventListener("click", () => {
-  counter += buttonClickAmount;
+  gameState.counter += buttonClickAmount;
   UpdateCounterDisplay(counterDisplay);
 });
 
@@ -36,12 +70,21 @@ class Upgrade {
   private numPurchased = 0;
   private priceMultiplier = 1.15;
 
-  public constructor(name: string, price: number, rate: number, description: string) {
+  public constructor(
+    name: string,
+    price: number,
+    rate: number,
+    description: string,
+  ) {
     this.name = name;
     this.price = price;
     this.rate = rate;
     this.description = description;
     this.button = this.initUpgradeButton();
+  }
+
+  private updateButton(button: HTMLButtonElement) {
+    button.textContent = this.name + " - " + Math.ceil(this.price) + " Gems";
   }
 
   private initUpgradeButton() {
@@ -50,15 +93,19 @@ class Upgrade {
     app.append(button);
     button.disabled = true;
     button.addEventListener("click", () => {
-      counter -= this.price;
-      growthRate += this.rate;
-      this.numPurchased += 1;
-      this.price *= this.priceMultiplier;
-      button.textContent = this.name + " - " + Math.ceil(this.price) + " Gems";
-      UpdateUpgradeVisibility();
-      UpdateStatusDisplay(growthDisplay, purchaseDisplay);
+      this.purchaseUpgrade();
     });
     return button;
+  }
+
+  private purchaseUpgrade() {
+    gameState.counter -= this.price;
+    gameState.growthRate += this.rate;
+    this.numPurchased += 1;
+    this.price *= this.priceMultiplier;
+    this.updateButton(this.button);
+    UpdateUpgradeVisibility();
+    UpdateStatusDisplay(growthDisplay, purchaseDisplay);
   }
 
   public getPrice() {
@@ -84,20 +131,35 @@ class Upgrade {
 
 // Initialize upgrade list and add create upgrades
 const upgradeList: Upgrade[] = [];
-const upA = new Upgrade("Hire Worker", 10, 0.1,
-  "Hire a worker to mine for you."
+const upA = new Upgrade(
+  "Hire Worker",
+  10,
+  0.1,
+  "Hire a worker to mine for you.",
 );
-const upB = new Upgrade("Buy Extraction Laser", 100, 2,
-  "Purchase a laser to extract gems from the earth."
+const upB = new Upgrade(
+  "Buy Extraction Laser",
+  100,
+  2,
+  "Purchase a laser to extract gems from the earth.",
 );
-const upC = new Upgrade("Install Mining Machine", 1000, 50,
-  "Install a machine to automatically mine gems."
+const upC = new Upgrade(
+  "Install Mining Machine",
+  1000,
+  50,
+  "Install a machine to automatically mine gems.",
 );
-const upD = new Upgrade("Discover Magic Gem Finding Wand", 10000, 250,
-  "Find a magic wand that can locate gems from afar."
+const upD = new Upgrade(
+  "Discover Magic Gem Finding Wand",
+  10000,
+  250,
+  "Find a magic wand that can locate gems from afar.",
 );
-const upE = new Upgrade("Build Portal to Gem Dimension", 100000, 1250,
-  "Create a portal to a dimension full of gems."
+const upE = new Upgrade(
+  "Build Portal to Gem Dimension",
+  100000,
+  1250,
+  "Create a portal to a dimension full of gems.",
 );
 upgradeList.push(upA);
 upgradeList.push(upB);
@@ -108,11 +170,7 @@ upgradeList.push(upE);
 // Automatic clicking variables
 const autoClickDelayInMS = 1000;
 const autoClickAmount = 1;
-let growthRate = 0;
 let lastTime = performance.now();
-
-// Flag for auto-clicker running
-let autoClickerRunning = false;
 
 UpdateStatusDisplay(growthDisplay, purchaseDisplay);
 requestAnimationFrame(Update);
@@ -123,9 +181,9 @@ function Update() {
   UpdateUpgradeVisibility();
 
   // Check for if the player has purchased an upgrade
-  if (growthRate > 0 && !autoClickerRunning) {
+  if (gameState.growthRate > 0 && !gameState.autoClickerRunning) {
     lastTime = performance.now();
-    autoClickerRunning = true;
+    gameState.autoClickerRunning = true;
     requestAnimationFrame(ContinuousGrowth);
   }
   requestAnimationFrame(Update);
@@ -137,7 +195,7 @@ function ContinuousGrowth() {
 
   // Compute fractional increment per millisecond
   const increment = (autoClickAmount * deltaTime) / autoClickDelayInMS;
-  counter += increment * growthRate;
+  gameState.counter += increment * gameState.growthRate;
 
   UpdateCounterDisplay(counterDisplay);
   requestAnimationFrame(ContinuousGrowth);
@@ -146,7 +204,7 @@ function ContinuousGrowth() {
 // Reset visibility of upgrades
 function UpdateUpgradeVisibility() {
   for (const upgrade of upgradeList) {
-    if (counter < upgrade.getPrice()) {
+    if (gameState.counter < upgrade.getPrice()) {
       upgrade.setVisibility(false);
     } else {
       upgrade.setVisibility(true);
@@ -166,7 +224,7 @@ function UpdateStatusDisplay(
 // Update the counter display
 function UpdateCounterDisplay(counterDisplay: HTMLElement | null) {
   if (counterDisplay) {
-    counterDisplay.textContent = `Gems: ${counter.toFixed(0)}`;
+    counterDisplay.textContent = `Gems: ${gameState.counter.toFixed(0)}`;
   } else {
     console.error("Counter display not found!");
   }
@@ -175,7 +233,7 @@ function UpdateCounterDisplay(counterDisplay: HTMLElement | null) {
 // Update the growth display
 function UpdateGrowthDisplay(growthDisplay: HTMLElement | null) {
   if (growthDisplay) {
-    growthDisplay.textContent = `${growthRate.toFixed(1)} Gems/sec`;
+    growthDisplay.textContent = `${gameState.growthRate.toFixed(1)} Gems/sec`;
   } else {
     console.error("Growth display not found!");
   }
@@ -184,12 +242,20 @@ function UpdateGrowthDisplay(growthDisplay: HTMLElement | null) {
 // Update the purchase display
 function UpdatePurchaseDisplay(purchaseDisplay: HTMLElement | null) {
   if (purchaseDisplay) {
-    let text = "Purchases: <br>";
-    for (const upgrade of upgradeList) {
-      text += upgrade.getName() + " - " + upgrade.getNumPurchased() + "<br>&emsp;&emsp;<em>" + upgrade.getDescription() + "</em><br>";
-    }
-    purchaseDisplay.innerHTML = text;
+    purchaseDisplay.innerHTML = generatePurchaseText();
   } else {
     console.error("Purchase display not found!");
   }
+}
+
+function generatePurchaseText(): string {
+  let text = "Purchases: <br>";
+  for (const upgrade of upgradeList) {
+    text += formatUpgradeInfo(upgrade);
+  }
+  return text;
+}
+
+function formatUpgradeInfo(upgrade: Upgrade): string {
+  return `${upgrade.getName()} - ${upgrade.getNumPurchased()}<br>&emsp;&emsp;<em>${upgrade.getDescription()}</em><br>`;
 }
